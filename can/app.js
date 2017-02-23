@@ -43,4 +43,8 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+app.use(require('connect-livereload')({
+  port: 35729
+}));
+
 module.exports = app;
