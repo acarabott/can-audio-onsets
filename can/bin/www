@@ -8,6 +8,7 @@ var app = require('../app');
 var debug = require('debug')('can:server');
 var http = require('http');
 const WebSocket = require('ws');
+const osc = require('osc');
 /**
  * Get port from environment and store in Express.
  */
@@ -21,16 +22,13 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
-var wss = new WebSocket.Server({ server });
+var wss = new WebSocket.Server({
+  server,
+  clientTracking: true
+});
 
 wss.on('connection', function connection(ws) {
-  console.log('connection');
-
-  ws.on('message', function incoming(msg) {
-    console.log('received: %s', msg);
-  });
-
-  ws.send(666);
+  ws.send(0);
 });
 /**
  * Listen on provided port, on all network interfaces.
@@ -99,3 +97,30 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+
+const oscUDPPort = new osc.UDPPort({
+  localAddress: "127.0.0.1",
+  localPort: 6666
+});
+
+let number = 0;
+const actions = {
+  '/increase': (cur, val) => cur + val,
+  '/decrease': (cur, val) => cur - val,
+  '/set': (cur, val) => val
+};
+
+oscUDPPort.on('message', msg => {
+  if (!actions.hasOwnProperty(msg.address)) {
+    console.log('no matching action');
+    return;
+  }
+  console.log(msg);
+  number = actions[msg.address](number, msg.args[0]);
+  wss.clients.forEach(client => client.send(number));
+});
+
+oscUDPPort.on('error', err => console.log(err));
+
+oscUDPPort.open();
