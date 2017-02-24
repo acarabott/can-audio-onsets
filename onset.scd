@@ -14,20 +14,44 @@ s.waitForBoot {
   ~onsets = Synth(\onset, 1);
 }
 
+~onsets.set(\floor, 0.3, \relaxtime, 2);
+
 ~prev = SystemClock.seconds;
 ~rout = {}.fork;
 ~thresh = 0.20;
+~count = 0;
+~done = false;
 OSCdef(\onsets, {|msg time addr recvPort|
   var now = SystemClock.seconds;
-  var sendAddr = if(now - ~prev > ~thresh) { "/increase" } { "/decrease" };
+  if(~done) {
+    ~count.postln;
+  } {
+    ~count = ~count + 1;
+    ~count.postln;
+  };
 
   ~rout.stop;
   ~rout = {
+    ~done = false;
     ~thresh.wait;
-    ~client.sendMsg(sendAddr, 1);
+    ~done = true;
+
+    if(~count == 1) {
+      ~client.sendMsg("/increase", 1);
+    };
+    if (~count == 2) {
+      ~client.sendMsg("/decrease", 1);
+    };
+    if (~count == 3) {
+      ~client.sendMsg("/set", 0);
+    };
+
+    ~count = 1;
   }.fork;
 
   ~prev = now;
 }, '/onset');
+
+
 
 ~client.sendMsg("/set", 0);
