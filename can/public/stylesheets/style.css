@@ -1,8 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+}
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  width: 95%;
+  padding: 2.5%;
+  font-family: "Lato", Helvetica, Arial, sans-serif;;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  font-size: 3em;
+}
+
+#container {
+  width: 80%;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 a {
   color: #00B7FF;
+}
+
+input {
+  font-size: 20em;
+  width: 100%;
+  text-align: right;
+  margin: 0 auto;
+  display: block;
+  border: none;
+  font-family: "Lato";
 }
